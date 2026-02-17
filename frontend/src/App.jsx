@@ -67,32 +67,32 @@ export default function App() {
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleBuyAll = async () => {
-    if (cart.length === 0) return;
-    
+  const handleBuy = async (product) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
       const response = await fetch(API_URL, {
         method: 'POST',
-        body: JSON.stringify({ 
-          items: cart, 
-          total: cartTotal 
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        // We send the Product ID so Lambda knows what to check
+        body: JSON.stringify({ productId: product.id, price: product.price }),
       });
 
-      const data = await response.json().catch(() => ({ orderId: `ORD-${Math.floor(Math.random()*10000)}` }));
-      setOrderId(data.orderId || "DEMO-123");
-      setCart([]);
-      setShowCart(false);
+      const data = await response.json();
+
+      if (response.status === 200) {
+        // SUCCESS: The Backend said yes!
+        setOrderId(data.orderId);
+      } else {
+        // FAILURE: The Backend said "Sold Out"
+        alert(`Failed: ${data.message}`); // Show "Sold Out" alert
+      }
     } catch (error) {
-      console.error("Purchase failed", error);
-      setOrderId(`ERR-${Math.floor(Math.random()*1000)}`);
+      console.error("Network Error", error);
+      alert("System Error: Check API URL");
     }
     setLoading(false);
   };
-
+  
   return (
     <div className="min-h-screen font-sans text-slate-800">
       {/* Navbar */}
