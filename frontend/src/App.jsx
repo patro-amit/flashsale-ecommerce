@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ShoppingCart, Zap, CheckCircle, Loader2, Trash2, Plus, Minus, X } from 'lucide-react';
 
-// YOUR API GATEWAY URL
+// REPLACE THIS WITH YOUR AWS API GATEWAY URL
 const API_URL = "https://481apei2q5.execute-api.ap-south-1.amazonaws.com/prod/checkout";
 
 const PRODUCTS = [
@@ -33,8 +33,17 @@ export default function App() {
     }).format(price);
   };
 
+  // --- FIXED: ADD TO CART WITH STOCK CHECK ---
   const addToCart = (product) => {
     const existingItem = cart.find(item => item.id === product.id);
+    const currentQty = existingItem ? existingItem.quantity : 0;
+
+    // Check if adding 1 more would exceed stock
+    if (currentQty + 1 > product.stock) {
+      alert(`Sorry! We only have ${product.stock} units of ${product.name} left in stock.`);
+      return;
+    }
+    
     if (existingItem) {
       setCart(cart.map(item =>
         item.id === product.id
@@ -44,7 +53,7 @@ export default function App() {
     } else {
       setCart([...cart, { ...product, quantity: 1 }]);
     }
-    // Optional: Open cart immediately when adding
+    // Automatically open cart to show the added item
     setShowCart(true); 
   };
 
@@ -52,67 +61,74 @@ export default function App() {
     setCart(cart.filter(item => item.id !== productId));
   };
 
+  // --- FIXED: UPDATE QUANTITY WITH STOCK CHECK ---
   const updateQuantity = (productId, quantity) => {
+    const product = PRODUCTS.find(p => p.id === productId);
+
     if (quantity <= 0) {
       removeFromCart(productId);
-    } else {
-      setCart(cart.map(item =>
-        item.id === productId
-          ? { ...item, quantity }
-          : item
-      ));
+      return;
     }
+
+    // Check against max stock
+    if (quantity > product.stock) {
+      alert(`Max stock reached! Only ${product.stock} available.`);
+      return;
+    }
+
+    setCart(cart.map(item =>
+      item.id === productId
+        ? { ...item, quantity }
+        : item
+    ));
   };
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // --- THE MISSING FUNCTION THAT CAUSED THE CRASH ---
+  // --- FIXED: CHECKOUT LOGIC ---
   const handleBuyAll = async () => {
     if (cart.length === 0) return;
     setLoading(true);
     
-    // For this demo, we'll process the first item in the cart or loop through them.
-    // Since your backend expects a single item, let's loop and buy them one by one.
-    // In a real app, you'd send the whole cart array to a different API endpoint.
-    
-    let lastOrderId = null;
-    let errorOccurred = false;
+    let successId = null;
+    let failedItem = null;
 
+    // We simulate buying items one by one for this demo architecture
+    // In a real production app, you would send the whole 'cart' array to Lambda
     for (const item of cart) {
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // Sending request for each item quantity times or just once per item type
           body: JSON.stringify({ productId: item.id, price: item.price }),
         });
 
         const data = await response.json();
 
         if (response.status === 200) {
-          lastOrderId = data.orderId;
+          successId = data.orderId;
         } else {
-          errorOccurred = true;
-          alert(`Failed to buy ${item.name}: ${data.message}`);
-          break; // Stop if one fails
+          // If ANY item fails (e.g. Sold Out), we stop
+          failedItem = item.name;
+          alert(`Transaction Failed for ${item.name}: ${data.message}`);
+          break; 
         }
       } catch (error) {
         console.error("Network Error", error);
-        errorOccurred = true;
+        alert("System Error: Could not connect to AWS Serverless Backend.");
         break;
       }
     }
 
-    if (!errorOccurred && lastOrderId) {
-      setOrderId(lastOrderId);
-      setCart([]); // Clear cart on success
+    if (!failedItem && successId) {
+      setOrderId(successId);
+      setCart([]); // Clear cart only if successful
       setShowCart(false); // Close sidebar
     }
     
     setLoading(false);
   };
-  // ------------------------------------------------
 
   return (
     <div className="min-h-screen font-sans text-slate-800 bg-slate-50">
@@ -301,6 +317,7 @@ export default function App() {
                 </>
               ) : (
                 <>
+                  <ShoppingCart className="h-5 w-5" />
                   Checkout Now <span className="text-blue-200">• {formatPrice(cartTotal)}</span>
                 </>
               )}
