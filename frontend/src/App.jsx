@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { ShoppingCart, Zap, CheckCircle, Loader2, Trash2, Plus, Minus, X } from 'lucide-react';
 
-// REPLACE THIS WITH YOUR AWS API GATEWAY URL
+// ⚠️ CRITICAL STEP: REPLACE THIS URL WITH YOUR ACTUAL AWS API GATEWAY URL
+// 1. Go to AWS Console -> API Gateway -> Stages -> prod
+// 2. Copy "Invoke URL"
+// 3. Paste it here and add "/checkout" at the end
 const API_URL = "https://481apei2q5.execute-api.ap-south-1.amazonaws.com/prod/checkout";
 
 const PRODUCTS = [
   { id: 1, name: "Sony WH-1000XM5", price: 24999, oldPrice: 33000, stock: 12, img: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&w=500&q=80" },
-  { id: 2, name: "MacBook Air M2", price: 82999, oldPrice: 99999, stock: 5, img: "https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&w=500&q=80" },
+  { id: 2, name: "MacBook Air M2", price: 82999, oldPrice: 99999, stock: 5, img: "https://store.storeimages.cdn-apple.com/1/as-images.apple.com/is/refurb-macbook-air-m2-midnight-202208?wid=4000&hei=3072&fmt=jpeg&qlt=90&.v=1659114484307" },
   { id: 3, name: "PS5 Console", price: 37999, oldPrice: 41999, stock: 3, img: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=500&q=80" },
   { id: 4, name: "RTX 4090 GPU", price: 132999, oldPrice: 157999, stock: 2, img: "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=500&q=80" },
   { id: 5, name: "iPhone 15 Pro", price: 79999, oldPrice: 99999, stock: 8, img: "https://images.unsplash.com/photo-1592286927505-1def25115558?auto=format&fit=crop&w=500&q=80" },
@@ -15,7 +18,7 @@ const PRODUCTS = [
   { id: 8, name: "Canon EOS R6", price: 189999, oldPrice: 249999, stock: 3, img: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=500&q=80" },
   { id: 9, name: "Apple Watch S9", price: 32999, oldPrice: 39999, stock: 10, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80" },
   { id: 10, name: "iPad Pro 12.9", price: 67999, oldPrice: 89999, stock: 7, img: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?auto=format&fit=crop&w=500&q=80" },
-  { id: 11, name: "Google Pixel 8", price: 54999, oldPrice: 69999, stock: 9, img: "https://images.unsplash.com/photo-1598327105666-5b89351aff23?auto=format&fit=crop&w=500&q=80" },
+  { id: 11, name: "Google Pixel 8", price: 54999, oldPrice: 69999, stock: 9, img: "https://buyshuy.com/wp-content/uploads/2025/07/71XEjCc4yLL._AC_SL1500_.jpg" },
   { id: 12, name: "AirPods Max", price: 54999, oldPrice: 64999, stock: 5, img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80" },
 ];
 
@@ -33,7 +36,7 @@ export default function App() {
     }).format(price);
   };
 
-  // --- FIXED: ADD TO CART WITH STOCK CHECK ---
+  // --- ADD TO CART WITH STOCK CHECK ---
   const addToCart = (product) => {
     const existingItem = cart.find(item => item.id === product.id);
     const currentQty = existingItem ? existingItem.quantity : 0;
@@ -61,7 +64,7 @@ export default function App() {
     setCart(cart.filter(item => item.id !== productId));
   };
 
-  // --- FIXED: UPDATE QUANTITY WITH STOCK CHECK ---
+  // --- UPDATE QUANTITY WITH STOCK CHECK ---
   const updateQuantity = (productId, quantity) => {
     const product = PRODUCTS.find(p => p.id === productId);
 
@@ -86,7 +89,7 @@ export default function App() {
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
-  // --- FIXED: CHECKOUT LOGIC ---
+  // --- CHECKOUT LOGIC ---
   const handleBuyAll = async () => {
     if (cart.length === 0) return;
     setLoading(true);
@@ -100,9 +103,16 @@ export default function App() {
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
+          mode: 'cors', // Explicitly request CORS
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ productId: item.id, price: item.price }),
         });
+
+        // Check if the URL is wrong (HTML response instead of JSON)
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+           throw new Error("Invalid Response. Check API URL.");
+        }
 
         const data = await response.json();
 
@@ -116,7 +126,7 @@ export default function App() {
         }
       } catch (error) {
         console.error("Network Error", error);
-        alert("System Error: Could not connect to AWS Serverless Backend.");
+        alert(`System Error: Could not connect to AWS Serverless Backend.\n\nReason: ${error.message}\n\nTip: Did you replace the 'API_URL' variable in App.jsx with your actual AWS Invoke URL?`);
         break;
       }
     }
