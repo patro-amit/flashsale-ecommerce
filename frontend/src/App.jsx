@@ -6,16 +6,16 @@ const API_URL = "https://481apei2q5.execute-api.ap-south-1.amazonaws.com/prod/ch
 
 const PRODUCTS = [
   { id: 1, name: "Sony WH-1000XM5", price: 24999, oldPrice: 33000, stock: 12, img: "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&w=500&q=80" },
-  { id: 2, name: "MacBook Air M2", price: 82999, oldPrice: 99999, stock: 5, img: "https://images.unsplash.com/photo-1517336714731-489689fd1ca4?auto=format&fit=crop&w=500&q=80" },
+  { id: 2, name: "MacBook Air M2", price: 82999, oldPrice: 99999, stock: 5, img: "/images/macbook.jpeg" },
   { id: 3, name: "PS5 Console", price: 37999, oldPrice: 41999, stock: 3, img: "https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?auto=format&fit=crop&w=500&q=80" },
   { id: 4, name: "RTX 4090 GPU", price: 132999, oldPrice: 157999, stock: 2, img: "https://images.unsplash.com/photo-1591488320449-011701bb6704?auto=format&fit=crop&w=500&q=80" },
   { id: 5, name: "iPhone 15 Pro", price: 79999, oldPrice: 99999, stock: 8, img: "https://images.unsplash.com/photo-1592286927505-1def25115558?auto=format&fit=crop&w=500&q=80" },
-  { id: 6, name: "Samsung 4K Smart TV", price: 44999, oldPrice: 59999, stock: 6, img: "https://images.unsplash.com/photo-1632889503876-211d5a0f57e7?auto=format&fit=crop&w=500&q=80" },
-  { id: 7, name: "DJI Air 3 Drone", price: 119999, oldPrice: 149999, stock: 4, img: "https://images.unsplash.com/photo-1508444845599-5c89863b1b44?auto=format&fit=crop&w=500&q=80" },
-  { id: 8, name: "Canon EOS R6 Camera", price: 189999, oldPrice: 249999, stock: 3, img: "https://images.unsplash.com/photo-1606986628025-35d57e735ae0?auto=format&fit=crop&w=500&q=80" },
+  { id: 6, name: "Samsung 4K Smart TV", price: 44999, oldPrice: 59999, stock: 6, img: "/images/samsung-tv.jpeg" },
+  { id: 7, name: "DJI Air 3 Drone", price: 119999, oldPrice: 149999, stock: 4, img: "/images/dji-drone.jpeg" },
+  { id: 8, name: "Canon EOS R6 Camera", price: 189999, oldPrice: 249999, stock: 3, img: "/images/canon-camera.jpeg" },
   { id: 9, name: "Apple Watch Series 9", price: 32999, oldPrice: 39999, stock: 10, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80" },
-  { id: 10, name: "iPad Pro 12.9", price: 67999, oldPrice: 89999, stock: 7, img: "https://images.unsplash.com/photo-1561154464-f822dbf27e77?auto=format&fit=crop&w=500&q=80" },
-  { id: 11, name: "Google Pixel 8 Pro", price: 54999, oldPrice: 69999, stock: 9, img: "https://images.unsplash.com/photo-1511707267537-b85faf00021e?auto=format&fit=crop&w=500&q=80" },
+  { id: 10, name: "iPad Pro 12.9", price: 67999, oldPrice: 89999, stock: 7, img: "/images/ipad-pro.png" },
+  { id: 11, name: "Google Pixel 8 Pro", price: 54999, oldPrice: 69999, stock: 9, img: "/images/google-pixel.jpeg" },
   { id: 12, name: "AirPods Max", price: 54999, oldPrice: 64999, stock: 5, img: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80" },
 ];
  
