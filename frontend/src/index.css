@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  @apply antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900;
+}
+
+/* Global utility classes */
+.container-fluid {
+  @apply w-full max-w-full;
+}
+
+.card {
+  @apply bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-md transition-shadow;
+}
+
+.btn-primary {
+  @apply px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 border-2 border-slate-300 text-slate-900 font-semibold rounded-lg hover:bg-slate-50 transition;
+}
+
+/* Smooth transitions */
+button,
+a {
+  @apply transition-all duration-200;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply animate-spin;
+}

@@ -1,0 +1,101 @@
+service: serverless-ecommerce-spike-handler
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  environment:
+    ORDERS_TABLE: OrdersTable-${sls:stage}
+    DYNAMODB_REGION: ${aws:region}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:Query
+        - dynamodb:Scan
+      Resource: arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/OrdersTable-${sls:stage}
+
+functions:
+  getProducts:
+    handler: handler.getProducts
+    events:
+      - http:
+          path: products
+          method: GET
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+          authorizer:
+            type: REQUEST
+          request:
+            schemas:
+              application/json:
+                schema: {}
+
+  createOrder:
+    handler: handler.createOrder
+    events:
+      - http:
+          path: orders
+          method: POST
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: true
+          authorizer:
+            type: REQUEST
+          request:
+            schemas:
+              application/json:
+                schema: {}
+    timeout: 30
+    memorySize: 512
+
+resources:
+  Resources:
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: OrdersTable-${sls:stage}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: orderId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: N
+        KeySchema:
+          - AttributeName: orderId
+            KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE
+        TimeToLiveSpecification:
+          AttributeName: expirationTime
+          Enabled: true
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        Tags:
+          - Key: Environment
+            Value: ${sls:stage}
+          - Key: Service
+            Value: ecommerce
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
