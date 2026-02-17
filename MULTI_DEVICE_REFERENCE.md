@@ -4,7 +4,7 @@
 
 **Device:** macOS  
 **Project Location:** `/Users/shyampatro/Cloud Computing Project`  
-**Backend Port:** `3001`  
+**Backend    Port:** `3001`  
 **Frontend Port:** `5173`  
 
 ---
